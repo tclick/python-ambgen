@@ -20,6 +20,7 @@ from os.path import basename
 from os.path import dirname
 from os.path import join
 from os.path import splitext
+from pathlib import Path
 
 from setuptools import find_packages
 from setuptools import setup
@@ -33,7 +34,7 @@ except ImportError:  # for pip <= 9.0.3
 with open("README.rst") as readme_file:
     readme = readme_file.read()
 
-with open("HISTORY.rst") as history_file:
+with open("CHANGELOG.rst") as history_file:
     history = history_file.read().replace(".. :changelog:", "")
 
 # workaround derived from: https://github.com/pypa/pip/issues/7645#issuecomment-578210649
@@ -42,15 +43,27 @@ parsed_requirements = parse_requirements("requirements/prod.txt", session="worka
 parsed_test_requirements = parse_requirements(
     "requirements/test.txt", session="workaround"
 )
-requirements = [str(ir.req) for ir in parsed_requirements]
-test_requirements = [str(tr.req) for tr in parsed_test_requirements]
 
+parsed_dev_requirements = parse_requirements("requirements/dev.txt", session="workaround")
+
+requirements = [str(_.requirement) for _ in parsed_requirements]
+test_requirements = [str(_.requirement) for _ in parsed_test_requirements]
+dev_requirements = [str(_.requirement) for _ in parsed_dev_requirements]
 
 def read(*names, **kwargs):
-    with io.open(
-        join(dirname(__file__), *names), encoding=kwargs.get("encoding", "utf8")
-    ) as fh:
-        return fh.read()
+    """Return the contents of a file.
+
+    Parameters
+    ----------
+    names : str
+        list of filenames
+    kwargs : dict
+        encoding type of the file
+    """
+    encoding = kwargs.get("encoding", "utf8")
+    filename = Path().joinpath(Path(__file__).parent, *names)
+    with open(filename, encoding=encoding) as text_file:
+        return text_file.read()
 
 
 setup(
@@ -99,20 +112,7 @@ setup(
     python_requires=">=3.8",
     install_requires=requirements,
     extras_require={
-        "dev": [
-            "black",
-            "bumpversion",
-            "coverage",
-            "flake8",
-            "ipython",
-            "pre-commit",
-            "pylint",
-            "setuptools",
-            "tox",
-            "twine",
-            "wheel",
-            "Sphinx",
-        ]
+        "dev": parsed_dev_requirements
     },
     entry_points={
         "console_scripts": [
