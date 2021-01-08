@@ -1,0 +1,14 @@
+-r prod.txt
+
+black
+bumpversion
+coverage
+flake8
+ipython
+pre-commit
+pylint
+setuptools
+tox
+twine
+wheel
+Sphinx
