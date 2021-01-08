@@ -1,0 +1,10 @@
+-r prod.txt
+
+mock
+pytest
+pytest-cache
+pytest-click
+pytest-cov
+pytest-mock
+pytest-pep8
+pytest-randomly

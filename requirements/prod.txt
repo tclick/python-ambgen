@@ -1,0 +1,11 @@
+ambertools
+biopython
+click
+h5py
+jinja2
+MDAnalysis
+matplotlib
+numpy
+scikit-learn
+scipy
+seaborn
