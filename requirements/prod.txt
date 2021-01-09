@@ -1,4 +1,3 @@
-ambertools
 biopython
 click
 h5py

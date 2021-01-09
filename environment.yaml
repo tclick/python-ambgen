@@ -1,0 +1,20 @@
+name: python-ambgen
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.8
+  - pip
+  - ambertools
+  - biopython
+  - click
+  - h5py
+  - jinja2
+  - MDAnalysis
+  - matplotlib
+  - numpy
+  - scikit-learn
+  - scipy
+  - seaborn
