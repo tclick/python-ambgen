@@ -20,30 +20,30 @@ from os.path import basename
 from os.path import dirname
 from os.path import join
 from os.path import splitext
+from pathlib import Path
+import pkg_resources
 
 from setuptools import find_packages
 from setuptools import setup
 
-try:  # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError:  # for pip <= 9.0.3
-    from pip.req import parse_requirements
 
-
-with open("README.rst") as readme_file:
+with Path("README.rst").open() as readme_file:
     readme = readme_file.read()
 
-with open("HISTORY.rst") as history_file:
+with Path("CHANGELOG.rst").open() as history_file:
     history = history_file.read().replace(".. :changelog:", "")
 
-# workaround derived from: https://github.com/pypa/pip/issues/7645#issuecomment-578210649
-parsed_requirements = parse_requirements("requirements/prod.txt", session="workaround")
+with Path("requirements/prod.txt").open() as requirements_txt:
+    requirements = [
+        str(requirement)
+        for requirement in pkg_resources.parse_requirements(requirements_txt)
+    ]
 
-parsed_test_requirements = parse_requirements(
-    "requirements/test.txt", session="workaround"
-)
-requirements = [str(ir.req) for ir in parsed_requirements]
-test_requirements = [str(tr.req) for tr in parsed_test_requirements]
+with Path("requirements/test.txt").open() as requirements_txt:
+    test_requirements = [
+        str(requirement)
+        for requirement in pkg_resources.parse_requirements(requirements_txt)
+    ]
 
 
 def read(*names, **kwargs):
@@ -74,7 +74,8 @@ setup(
     include_package_data=True,
     zip_safe=False,
     classifiers=[
-        # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        # complete classifier list:
+        # http://pypi.python.org/pypi?%3Aaction=list_classifiers
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Researchers",
         "License :: OSI Approved :: BSD License",
