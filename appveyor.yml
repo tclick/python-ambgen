@@ -1,0 +1,44 @@
+image: Visual Studio 2019
+environment:
+  matrix:
+      - SYS_PYTHON: "C:\\Miniconda38-x64"
+        SYS_PYTHON_VERSION: "3.8"
+        SYS_PYTHON_ARCH: "64"
+        CONDA_CANARY: "False"
+        TOXENV: py38, check, clean, docs, package_description, report
+
+init:
+    - ECHO %SYS_PYTHON_VERSION% %MINICONDA%
+
+install:
+    # If there is a newer build queued for the same PR, cancel this one.
+    # The AppVeyor 'rollout builds' option is supposed to serve the same
+    # purpose but it is problematic because it tends to cancel builds pushed
+    # directly to master instead of just PR builds (or the converse).
+    # credits: JuliaLang developers.
+    - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_BUILD_NUMBER -ne ((Invoke-RestMethod `
+          https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
+          Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
+          throw "There are newer queued builds for this pull request, failing early." }
+    # these correspond to folder naming of miniconda installs on appveyor.  See
+    # https://www.appveyor.com/docs/installed-software#python
+    - if "%SYS_PYTHON_VERSION%" == "3.8" set "BASE_PYTHON_VERSION=38"
+    - if "%SYS_PYTHON_ARCH%" == "64" set "ARCH_LABEL=-x64"
+    # These are already installed on appveyor.  Update them.
+    - set "CONDA_ROOT=C:\Miniconda%BASE_PYTHON_VERSION%%ARCH_LABEL%"
+    - set "PATH=%CONDA_ROOT%;%CONDA_ROOT%\Scripts;%CONDA_ROOT%\Library\bin;%PATH%"
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+    - python -c "import sys; print(sys.version)"
+    - python -c "import sys; print(sys.executable)"
+    - python -c "import sys; print(sys.prefix)"
+    - conda create -q -n test-environment python=%SYS_PYTHON_VERSION% pip
+    - activate test-environment
+    - pip install tox
+
+# Not a .NET project, we build package in the install step instead
+build: false
+
+test_script:
+    - tox
