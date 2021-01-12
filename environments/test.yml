@@ -2,9 +2,8 @@ flaky
 mock
 pytest
 pytest-cache
-pytest-click
 pytest-cov
 pytest-flake8
 pytest-mock
 pytest-pep8
-pytest-randomly
+tox

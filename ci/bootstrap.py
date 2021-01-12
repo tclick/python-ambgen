@@ -18,7 +18,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-base_path = Path(__file__).absolute().parent.parent
+base_path = Path(__file__).resolve().parent.parent
 
 
 def check_call(args):
@@ -27,27 +27,27 @@ def check_call(args):
 
 
 def exec_in_env():
-    env_path = base_path.joinpath(".tox").joinpath("bootstrap")
+    env_path = base_path.joinpath(".tox", "bootstrap")
     if sys.platform == "win32":
         bin_path = env_path.joinpath("Scripts")
     else:
         bin_path = env_path.joinpath("bin")
-    if not env_path.exists:
+    if not env_path.exists():
         import subprocess
 
         print(f"Making bootstrap env in: {env_path} ...")
         try:
-            subprocess.check_call([sys.executable, "-m", "venv", env_path])
+            check_call([sys.executable, "-m", "venv", env_path])
         except subprocess.CalledProcessError:
             try:
-                subprocess.check_call([sys.executable, "-m", "virtualenv", env_path])
+                check_call([sys.executable, "-m", "virtualenv", env_path])
             except subprocess.CalledProcessError:
-                subprocess.check_call(["virtualenv", env_path])
+                check_call(["virtualenv", env_path])
         print("Installing `jinja2` into bootstrap environment...")
-        subprocess.check_call([bin_path.joinpath("pip"), "install", "jinja2", "tox"])
+        check_call([bin_path.joinpath("pip"), "install", "jinja2", "tox"])
     python_executable = bin_path.joinpath("python")
-    if not python_executable.exists:
-        python_executable += ".exe"
+    if not python_executable.exists():
+        python_executable.with_suffix(".exe")
 
     print(f"Re-executing with: {python_executable}")
     print("+ exec", python_executable, __file__, "--no-env")
@@ -60,7 +60,7 @@ def main():
     print(f"Project path: {base_path}")
 
     jinja = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(base_path.joinpath("ci").joinpath("templates")),
+        loader=jinja2.FileSystemLoader(base_path.joinpath("ci", "templates")),
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,
@@ -80,7 +80,7 @@ def main():
     tox_environments = [line for line in tox_environments if line.startswith("py")]
 
     for name in Path("ci").joinpath("templates").iterdir():
-        with open(base_path.joinpath(name), "w") as fh:
+        with base_path.joinpath(name).open("w") as fh:
             fh.write(jinja.get_template(name).render(tox_environments=tox_environments))
         print(f"Wrote {name}")
     print("DONE.")

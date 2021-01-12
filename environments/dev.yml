@@ -1,0 +1,11 @@
+black
+bumpversion
+coverage
+flake8
+ipython
+pre-commit
+pylint
+setuptools
+twine
+wheel
+Sphinx

@@ -1,4 +1,6 @@
-MDAnalysis
+python=3.8
+pip
+MDAnalysis=1.0.0
 biopython
 click
 h5py

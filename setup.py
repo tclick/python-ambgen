@@ -14,59 +14,34 @@
 # --------------------------------------------------------------------------------------
 
 import re
-from glob import glob
-from os.path import basename
-from os.path import splitext
 from pathlib import Path
 
 import pkg_resources
-from setuptools import find_packages
-from setuptools import setup
+from setuptools import find_packages, setup
 
-
-with open("README.rst") as readme_file:
+with Path("README.rst").open() as readme_file:
     readme = readme_file.read()
 
-with open("CHANGELOG.rst") as history_file:
+with Path("CHANGELOG.rst").open() as history_file:
     history = history_file.read().replace(".. :changelog:", "")
 
-# workaround derived from:
-# https://stackoverflow.com/questions/49689880/proper-way-to-parse-requirements-file-after-pip-upgrade-to-pip-10-x-x
-with Path('requirements/prod.txt').open() as requirements_txt:
+with Path("requirements/prod.txt").open() as requirements_txt:
     requirements = [
         str(requirement)
-        for requirement
-        in pkg_resources.parse_requirements(requirements_txt)
+        for requirement in pkg_resources.parse_requirements(requirements_txt)
     ]
 
-with Path('requirements/test.txt').open() as requirements_txt:
+with Path("requirements/test.txt").open() as requirements_txt:
     test_requirements = [
         str(requirement)
-        for requirement
-        in pkg_resources.parse_requirements(requirements_txt)
+        for requirement in pkg_resources.parse_requirements(requirements_txt)
     ]
 
-with Path('requirements/dev.txt').open() as requirements_txt:
-    dev_requirements = [
-        str(requirement)
-        for requirement
-        in pkg_resources.parse_requirements(requirements_txt)
-    ]
 
 def read(*names, **kwargs):
-    """Return the contents of a file.
-
-    Parameters
-    ----------
-    names : str
-        list of filenames
-    kwargs : dict
-        encoding type of the file
-    """
-    encoding = kwargs.get("encoding", "utf8")
-    filename = Path().joinpath(Path(__file__).parent, *names)
-    with open(filename, encoding=encoding) as text_file:
-        return text_file.read()
+    dir_name = Path(__file__).parent
+    with dir_name.joinpath(*names).open(encoding=kwargs.get("encoding", "utf8")) as fh:
+        return fh.read()
 
 
 setup(
@@ -86,11 +61,12 @@ setup(
     url="https://github.com/tclick/python-ambgen",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
+    py_modules=[path.name for path in Path("src").glob("*.py")],
     include_package_data=True,
     zip_safe=False,
     classifiers=[
-        # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        # complete classifier list:
+        # http://pypi.python.org/pypi?%3Aaction=list_classifiers
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Researchers",
         "License :: OSI Approved :: BSD License",
@@ -115,7 +91,20 @@ setup(
     python_requires=">=3.8",
     install_requires=requirements,
     extras_require={
-        "dev": dev_requirements
+        "dev": [
+            "black",
+            "bumpversion",
+            "coverage",
+            "flake8",
+            "ipython",
+            "pre-commit",
+            "pylint",
+            "setuptools",
+            "tox",
+            "twine",
+            "wheel",
+            "Sphinx",
+        ]
     },
     entry_points={
         "console_scripts": [
