@@ -21,7 +21,7 @@ Overview
 
 .. |travis| image:: https://api.travis-ci.org/tclick/python-ambgen.svg?branch=master
     :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/tclick/python-ambgen
+    :target: https://travis-ci.com/tclick/python-ambgen
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/tclick/python-ambgen?branch=master&svg=true
     :alt: AppVeyor Build Status
@@ -73,6 +73,15 @@ Installation
 You can also install the in-development version with::
 
     pip install https://github.com/tclick/python-ambgen/archive/master.zip
+
+
+If you have Anaconda or Miniconda installed, you can use::
+
+    make conda
+
+You can also install the in-development version with::
+
+    make conda-dev
 
 
 Documentation
