@@ -16,8 +16,7 @@ branches:
     only:
         - master
         - develop
-        - start_4.0.0
-before_install:
+/before_install:
     - python --version
     - uname -a
     - lsb_release -a
