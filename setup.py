@@ -13,19 +13,11 @@
 #  THIS SOFTWARE.
 # --------------------------------------------------------------------------------------
 
-import io
 import re
-from glob import glob
-from os.path import basename
-from os.path import dirname
-from os.path import join
-from os.path import splitext
 from pathlib import Path
+
 import pkg_resources
-
-from setuptools import find_packages
-from setuptools import setup
-
+from setuptools import find_packages, setup
 
 with Path("README.rst").open() as readme_file:
     readme = readme_file.read()
@@ -47,9 +39,8 @@ with Path("requirements/test.txt").open() as requirements_txt:
 
 
 def read(*names, **kwargs):
-    with io.open(
-        join(dirname(__file__), *names), encoding=kwargs.get("encoding", "utf8")
-    ) as fh:
+    dir_name = Path(__file__).parent
+    with dir_name.joinpath(*names).open(encoding=kwargs.get("encoding", "utf8")) as fh:
         return fh.read()
 
 
@@ -70,7 +61,7 @@ setup(
     url="https://github.com/tclick/python-ambgen",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
+    py_modules=[path.name for path in Path("src").glob("*.py")],
     include_package_data=True,
     zip_safe=False,
     classifiers=[
