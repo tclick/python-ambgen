@@ -1,5 +1,3 @@
--r prod.txt
-
 mock
 pytest
 pytest-cache

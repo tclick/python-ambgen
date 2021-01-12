@@ -1,11 +1,9 @@
-ambertools
+MDAnalysis
 biopython
 click
 h5py
 jinja2
-MDAnalysis
 matplotlib
-numpy
+pandas
 scikit-learn
-scipy
 seaborn
