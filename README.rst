@@ -19,7 +19,7 @@ Overview
     :target: https://readthedocs.org/projects/python-ambgen
     :alt: Documentation Status
 
-.. |travis| image:: https://api.travis-ci.org/tclick/python-ambgen.svg?branch=master
+.. |travis| image:: https://travis-ci.com/tclick/python-ambgen.svg?token=2mZD6oGi6xzsaGq6z3d5&branch=master
     :alt: Travis-CI Build Status
     :target: https://travis-ci.com/tclick/python-ambgen
 
