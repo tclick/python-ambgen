@@ -29,10 +29,88 @@ Why does this file exist, and why not put this in __main__?
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
 
+import sys
+from pathlib import Path
+from typing import Any, List, NoReturn, Union
+
 import click
+from click import core
+
+CONTEXT_SETTINGS = dict(
+    auto_envvar_prefix="COMPLEX", help_option_names=["-h", "--help"]
+)
 
 
-@click.command()
-@click.argument("names", nargs=-1)
-def main(names):
-    click.echo(repr(names))
+class Context:
+    """Context manager for click command-line interface."""
+
+    def __init__(self):
+        self.verbose = False
+        self.home = Path.home()
+
+    def log(self, msg: str, *args: List[str]) -> NoReturn:
+        """Logs a message to stderr."""
+        if args:
+            msg %= args
+        click.echo(msg, file=sys.stderr)
+
+    def vlog(self, msg: str, *args: List[str]) -> NoReturn:
+        """Logs a message to stderr only if verbose is enabled."""
+        if self.verbose:
+            self.log(msg, *args)
+
+
+pass_context = click.make_pass_decorator(Context, ensure=True)
+cmd_folder = Path(__file__).parent.joinpath("commands").resolve()
+
+
+class ComplexCLI(click.MultiCommand):
+    """Complex command-line options with subcommands for fluctmatch."""
+
+    def list_commands(self, ctx: Any) -> List[str]:
+        """List available commands.
+
+        Parameters
+        ----------
+        ctx : :object:`Context`
+            click context
+
+        Returns
+        -------
+            List of available commands
+        """
+        commands = []
+        for filename in cmd_folder.iterdir():
+            if filename.suffix == ".py" and filename.stem.startswith("cmd_"):
+                commands.append(filename[4:-3])
+        commands.sort()
+        return commands
+
+    def get_command(self, ctx: Any, cmd_name: str) -> Union[core.Command, NoReturn]:
+        """Run the selected command
+
+        Parameters
+        ----------
+        ctx : :class:`Context`
+            click context
+        cmd_name : str
+            command name
+
+        Returns
+        -------
+            The chosen command if present
+        """
+        try:
+            if sys.version_info[0] == 2:
+                cmd_name = cmd_name.encode("ascii", "replace")
+            mod = __import__("ambgen.commands.cmd_" + cmd_name, None, None, ["cli"])
+        except ImportError:
+            return
+        return mod.cli
+
+
+@click.command(cls=ComplexCLI, context_settings=CONTEXT_SETTINGS)
+@click.version_option()
+def main():
+    """Main command-line interface"""
+    pass
