@@ -13,8 +13,10 @@
 #  THIS SOFTWARE.
 # --------------------------------------------------------------------------------------
 
+import pytest
 from click.testing import CliRunner
 
+from ambgen import create_logging_dict
 from ambgen.cli import main
 
 
@@ -22,5 +24,16 @@ def test_main():
     runner = CliRunner()
     result = runner.invoke(main, [])
 
-    assert result.output == "()\n"
+    assert result.output.startswith("Usage")
     assert result.exit_code == 0
+
+
+def test_create_logging_dict():
+    logfile = "test.log"
+    assert isinstance(create_logging_dict(logfile), dict)
+
+
+def test_create_logging_dict_error():
+    logfile = ""
+    with pytest.raises(ValueError):
+        create_logging_dict(logfile)
