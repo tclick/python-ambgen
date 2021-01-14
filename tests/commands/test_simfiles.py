@@ -12,28 +12,45 @@
 #  TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 #  THIS SOFTWARE.
 # --------------------------------------------------------------------------------------
+import shutil
+from pathlib import Path
 
-import pytest
 from click.testing import CliRunner
 
-from ambgen import create_logging_dict
 from ambgen.cli import main
+from ..datafile import TOP
 
 
-def test_main():
+def test_prepfiles_help():
     runner = CliRunner()
-    result = runner.invoke(main, args=("-h",))
+    result = runner.invoke(
+        main,
+        args=(
+            "prepfiles",
+            "-h",
+        ),
+        env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+    )
 
     assert "Usage:" in result.output
     assert result.exit_code == 0
 
 
-def test_create_logging_dict():
-    logfile = "test.log"
-    assert isinstance(create_logging_dict(logfile), dict)
-
-
-def test_create_logging_dict_error():
-    logfile = ""
-    with pytest.raises(ValueError):
-        create_logging_dict(logfile)
+def test_prepfiles():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            main,
+            args=(
+                "simfiles",
+                "-s",
+                f"{TOP}",
+                "-p",
+                "rnase2",
+                "-l",
+                Path.cwd().joinpath("prepare.log").as_posix(),
+            ),
+            env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+        )
+        assert Path("prepare.log").exists()
+        assert result.exit_code == 0
