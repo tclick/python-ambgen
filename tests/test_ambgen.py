@@ -12,12 +12,19 @@
 #  TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 #  THIS SOFTWARE.
 # --------------------------------------------------------------------------------------
+import runpy
 
 import pytest
 from click.testing import CliRunner
 
 from ambgen import create_logging_dict
 from ambgen.cli import main
+
+
+def test_main_module():
+    sys_dict = runpy.run_module("ambgen", init_globals={"__name__": "__main__"})
+    assert sys_dict["__name__"] == "ambgen.__main__"
+    assert isinstance(sys_dict["main"], type(main))
 
 
 def test_main():
