@@ -21,12 +21,12 @@ from ambgen.cli import main
 from ..datafile import TOP
 
 
-def test_prepfiles_help():
+def test_simfiles_help():
     runner = CliRunner()
     result = runner.invoke(
         main,
         args=(
-            "prepfiles",
+            "simfiles",
             "-h",
         ),
         env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
@@ -36,7 +36,7 @@ def test_prepfiles_help():
     assert result.exit_code == 0
 
 
-def test_prepfiles():
+def test_simfiles():
     runner = CliRunner()
     with runner.isolated_filesystem():
         result = runner.invoke(
