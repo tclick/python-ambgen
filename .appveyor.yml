@@ -35,7 +35,7 @@ install:
     - python -c "import sys; print(sys.version)"
     - python -c "import sys; print(sys.executable)"
     - python -c "import sys; print(sys.prefix)"
-    - conda create -q -n test-environment python=%SYS_PYTHON_VERSION% pip
+    - conda create -q -c conda-forge -n test-environment --file environments/prod.yml --file environments/dev.yml --file environments/test.yml python=%SYS_PYTHON_VERSION% pip
     - activate test-environment
     - pip install tox
 
