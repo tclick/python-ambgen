@@ -31,7 +31,9 @@ Why does this file exist, and why not put this in __main__?
 
 import sys
 from pathlib import Path
-from typing import Any, List, NoReturn, Union
+from typing import List
+from typing import NoReturn
+from typing import Union
 
 import click
 from click import core
@@ -67,7 +69,7 @@ cmd_folder = Path(__file__).parent.joinpath("commands").resolve()
 class ComplexCLI(click.MultiCommand):
     """Complex command-line options with subcommands for fluctmatch."""
 
-    def list_commands(self, ctx: Any) -> List[str]:
+    def list_commands(self, ctx: Context) -> List[str]:
         """List available commands.
 
         Parameters
@@ -79,14 +81,14 @@ class ComplexCLI(click.MultiCommand):
         -------
             List of available commands
         """
-        commands = []
+        commands: List[str] = []
         for filename in cmd_folder.iterdir():
             if filename.suffix == ".py" and filename.stem.startswith("cmd_"):
-                commands.append(filename[4:-3])
+                commands.append(filename.stem[4:-3])
         commands.sort()
         return commands
 
-    def get_command(self, ctx: Any, cmd_name: str) -> Union[core.Command, NoReturn]:
+    def get_command(self, ctx: Context, cmd_name: str) -> Union[core.Command, NoReturn]:
         """Run the selected command
 
         Parameters
