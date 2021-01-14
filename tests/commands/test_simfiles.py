@@ -36,21 +36,23 @@ def test_simfiles_help():
     assert result.exit_code == 0
 
 
-def test_simfiles():
+def test_simfiles(tmp_path):
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            main,
-            args=(
-                "simfiles",
-                "-s",
-                f"{TOP}",
-                "-p",
-                "rnase2",
-                "-l",
-                Path.cwd().joinpath("prepare.log").as_posix(),
-            ),
-            env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
-        )
-        assert Path("prepare.log").exists()
-        assert result.exit_code == 0
+    logfile = tmp_path.joinpath("prepare.log")
+    result = runner.invoke(
+        main,
+        args=(
+            "simfiles",
+            "-s",
+            f"{TOP}",
+            "-d",
+            tmp_path,
+            "-p",
+            "rnase2",
+            "-l",
+            logfile.as_posix(),
+        ),
+        env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+    )
+    assert logfile.exists()
+    assert result.exit_code == 0
