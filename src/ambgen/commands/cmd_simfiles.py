@@ -20,7 +20,6 @@ simulations (NVE), and the equilibration runs involve both canonical (NVT) and
 isobaric-isothermal (NPT) simulations with minimization steps between the equilibration
 runs.
 """
-import glob
 import logging
 import logging.config
 import os
@@ -163,9 +162,9 @@ def cli(
     protein = universe.select_atoms("protein")
     ions = universe.select_atoms("name Na+ K+ Cl-")
     solvent = universe.select_atoms("resname WAT")
-    if home:
+    try:
         amberhome = Path(home)
-    else:
+    except TypeError:
         try:
             amberhome = Path(os.environ["AMBERHOME"])
         except KeyError:
@@ -213,5 +212,5 @@ def cli(
         _write_template(env, _, data, subdir, logger)
 
     # Write the shell scripts
-    for _ in glob.iglob("Input/*.sh"):
-        Path(_).chmod(0o755)
+    for _ in subdir.glob("*.sh"):
+        _.chmod(0o100755)

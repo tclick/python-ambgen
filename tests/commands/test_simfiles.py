@@ -15,8 +15,10 @@
 import shutil
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
+import ambgen
 from ambgen.cli import main
 from ..datafile import TOP
 
@@ -36,7 +38,8 @@ def test_simfiles_help():
     assert result.exit_code == 0
 
 
-def test_simfiles(tmp_path):
+@pytest.mark.parametrize("sim_type", "equil prod shell all".split())
+def test_simfiles(tmp_path, sim_type):
     runner = CliRunner()
     logfile = tmp_path.joinpath("prepare.log")
     result = runner.invoke(
@@ -51,8 +54,59 @@ def test_simfiles(tmp_path):
             "rnase2",
             "-l",
             logfile.as_posix(),
+            "--type",
+            sim_type,
         ),
         env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
     )
     assert logfile.exists()
     assert result.exit_code == 0
+    assert len([_ for _ in tmp_path.joinpath("Input").iterdir()]) > 0
+
+
+def test_write_template(tmp_path, mocker):
+    runner = CliRunner()
+    logfile = tmp_path.joinpath("prepare.log")
+    with mocker.patch("ambgen.commands.cmd_simfiles._write_template"):
+        runner.invoke(
+            main,
+            args=(
+                "simfiles",
+                "-s",
+                f"{TOP}",
+                "-d",
+                tmp_path,
+                "-p",
+                "rnase2",
+                "-l",
+                logfile.as_posix(),
+            ),
+            env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+        )
+        ambgen.commands.cmd_simfiles._write_template.assert_called()
+
+
+def test_shell_chmod(tmp_path):
+    runner = CliRunner()
+    logfile = tmp_path.joinpath("prepare.log")
+    equil_file = tmp_path.joinpath("Input", "equilibrate.sh")
+
+    runner.invoke(
+        main,
+        args=(
+            "simfiles",
+            "-s",
+            f"{TOP}",
+            "-d",
+            tmp_path,
+            "-p",
+            "rnase2",
+            "-l",
+            logfile.as_posix(),
+            "--type",
+            "shell",
+        ),
+        env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+    )
+    assert equil_file.exists()
+    assert oct(equil_file.stat().st_mode)[5:] == "755"
