@@ -12,8 +12,6 @@
 #  TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 #  THIS SOFTWARE.
 # --------------------------------------------------------------------------------------
-import shutil
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
@@ -23,7 +21,7 @@ from ambgen.cli import main
 from ..datafile import TOP
 
 
-def test_simfiles_help():
+def test_simfiles_help(tmp_path):
     runner = CliRunner()
     result = runner.invoke(
         main,
@@ -31,7 +29,7 @@ def test_simfiles_help():
             "simfiles",
             "-h",
         ),
-        env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+        env=dict(AMBERHOME=tmp_path.as_posix()),
     )
 
     assert "Usage:" in result.output
@@ -57,7 +55,7 @@ def test_simfiles(tmp_path, sim_type):
             "--type",
             sim_type,
         ),
-        env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+        env=dict(AMBERHOME=tmp_path.as_posix()),
     )
     assert logfile.exists()
     assert result.exit_code == 0
@@ -81,7 +79,7 @@ def test_write_template(tmp_path, mocker):
                 "-l",
                 logfile.as_posix(),
             ),
-            env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+            env=dict(AMBERHOME=tmp_path.as_posix()),
         )
         ambgen.commands.cmd_simfiles._write_template.assert_called()
 
@@ -106,7 +104,7 @@ def test_shell_chmod(tmp_path):
             "--type",
             "shell",
         ),
-        env=dict(AMBERHOME=Path(shutil.which("sander")).parent.parent.as_posix()),
+        env=dict(AMBERHOME=tmp_path.as_posix()),
     )
     assert equil_file.exists()
     assert oct(equil_file.stat().st_mode)[5:] == "755"
